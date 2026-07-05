@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+env:
+  PYTHON_VERSION: "3.13"
+  NODE_VERSION: "24"
+
+jobs:
+
+  # ── Job 1: Sprint 0.1.1 smoke test ─────────────────────────────
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install backend dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Backend health check
+        run: |
+          cd backend
+          python -m uvicorn app.main:app --port 18001 &
+          sleep 3
+          curl -sf http://localhost:18001/health && echo "HEALTH OK" || (echo "HEALTH FAILED" && exit 1)
+          kill %1 || true
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Frontend build
+        run: cd frontend && npm run build
+
+  # ── Job 2: Sprint 0.1.2 DB tests against SQLite ────────────────
+  backend-tests-sqlite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run DB tests (SQLite)
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v
+        env:
+          DATABASE_URL: ""
+
+  # ── Job 3: Sprint 0.1.2 DB tests against PostgreSQL ─────────────
+  backend-tests-postgres:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Run DB tests (PostgreSQL)
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
