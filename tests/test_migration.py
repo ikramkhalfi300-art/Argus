@@ -59,35 +59,31 @@ async def _fetch_table_names(db_url):
     return {t for t in tables if not t.startswith("alembic_")}
 
 
-def test_migration_up_down(db_url):
+async def test_migration_up_down(db_url):
     """Verify migration is reversible and reproducible from scratch."""
-    import asyncio
-
     upgrade_result = run_alembic(["upgrade", "head"], db_url)
     assert upgrade_result.returncode == 0, f"Upgrade failed:\n{upgrade_result.stderr}"
 
-    tables = asyncio.run(_fetch_table_names(db_url))
+    tables = await _fetch_table_names(db_url)
     for name in ("products", "runs", "agent_outputs", "reports"):
         assert name in tables, f"Table '{name}' missing after migration up"
 
     downgrade_result = run_alembic(["downgrade", "base"], db_url)
     assert downgrade_result.returncode == 0, f"Downgrade failed:\n{downgrade_result.stderr}"
 
-    tables_after_down = asyncio.run(_fetch_table_names(db_url))
+    tables_after_down = await _fetch_table_names(db_url)
     assert len(tables_after_down) == 0, f"Tables still exist after downgrade: {tables_after_down}"
 
     reup_result = run_alembic(["upgrade", "head"], db_url)
     assert reup_result.returncode == 0, f"Re-upgrade failed:\n{reup_result.stderr}"
 
-    tables_reup = asyncio.run(_fetch_table_names(db_url))
+    tables_reup = await _fetch_table_names(db_url)
     for name in ("products", "runs", "agent_outputs", "reports"):
         assert name in tables_reup, f"Table '{name}' missing after re-upgrade"
 
 
-def test_migration_column_types(db_url):
+async def test_migration_column_types(db_url):
     """Verify the exact column names match the spec."""
-    import asyncio
-
     result = run_alembic(["upgrade", "head"], db_url)
     assert result.returncode == 0
 
@@ -100,6 +96,6 @@ def test_migration_column_types(db_url):
         await engine.dispose()
         return columns
 
-    cols = asyncio.run(check_schema())
+    cols = await check_schema()
     for name in ("id", "name", "category", "subcategory", "normalized_keywords", "source_url", "created_at"):
         assert name in cols, f"Column '{name}' missing in products table"
