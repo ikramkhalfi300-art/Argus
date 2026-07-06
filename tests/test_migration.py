@@ -59,6 +59,7 @@ async def _fetch_table_names(db_url):
     return {t for t in tables if not t.startswith("alembic_")}
 
 
+@pytest.mark.asyncio
 async def test_migration_up_down(db_url):
     """Verify migration is reversible and reproducible from scratch."""
     upgrade_result = run_alembic(["upgrade", "head"], db_url)
@@ -82,6 +83,7 @@ async def test_migration_up_down(db_url):
         assert name in tables_reup, f"Table '{name}' missing after re-upgrade"
 
 
+@pytest.mark.asyncio
 async def test_migration_column_types(db_url):
     """Verify the exact column names match the spec."""
     result = run_alembic(["upgrade", "head"], db_url)
