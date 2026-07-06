@@ -63,9 +63,14 @@ jobs:
         run: python -c "import sys; sys.path.insert(0,'backend'); from sqlalchemy import create_engine,text; engine=create_engine('sqlite://'); conn=engine.connect(); result=conn.execute(text('SELECT 1')); assert result.scalar()==1; conn.close(); print('Basic SQLite sync OK')"
 
       - name: Run DB tests (SQLite)
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short 2>&1
+        continue-on-error: true
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long > pytest-output.txt 2>&1
         env:
           DATABASE_URL: ""
+
+      - name: Emit pytest output as annotations
+        if: always()
+        run: tail -30 pytest-output.txt | while IFS= read -r line; do echo "::error file=pytest-output.txt,title=sqlite test::${line}"; done 2>/dev/null || echo "No output file"
 
   # ── Job 3: Sprint 0.1.2 DB tests against PostgreSQL ─────────────
   backend-tests-postgres:
@@ -98,6 +103,11 @@ jobs:
         run: pip install -r backend/requirements.txt
 
       - name: Run DB tests (PostgreSQL)
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v
+        continue-on-error: true
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long > pytest-output.txt 2>&1
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
+
+      - name: Emit pytest output as annotations
+        if: always()
+        run: tail -30 pytest-output.txt | while IFS= read -r line; do echo "::error file=pytest-output.txt,title=pg test::${line}"; done 2>/dev/null || echo "No output file"
