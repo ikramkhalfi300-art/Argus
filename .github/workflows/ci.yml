@@ -59,8 +59,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Debug — verify Python imports
-        run: python -c "from app.database import Base; from app.models import Product, Run, Report, Confidence, RunStatus; from app.services import db_service; print('All imports OK')"
+      - name: Debug — verify imports
+        run: |
+          echo "Current dir: $(pwd)"
+          echo "Python version: $(python --version)"
+          echo "sys.path:"; python -c "import sys; print(sys.path)"
+          python -c "import sqlalchemy; print('sqlalchemy:', sqlalchemy.__version__)"
+          python -c "import aiosqlite; print('aiosqlite OK')"
+          cd backend && python -c "from app.database import Base; from app.models import Product, Run, Report, Confidence, RunStatus; from app.services import db_service; print('All imports OK')"
 
       - name: Run DB tests (SQLite)
         run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1
@@ -97,8 +103,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Debug — verify Python imports
-        run: python -c "from app.database import Base; from app.models import Product, Run, Report, Confidence, RunStatus; from app.services import db_service; print('All imports OK')"
+      - name: Debug — verify imports
+        run: |
+          echo "Current dir: $(pwd)"
+          echo "Python version: $(python --version)"
+          echo "sys.path:"; python -c "import sys; print(sys.path)"
+          python -c "import sqlalchemy; print('sqlalchemy:', sqlalchemy.__version__)"
+          python -c "import asyncpg; print('asyncpg OK')"
+          cd backend && python -c "from app.database import Base; from app.models import Product, Run, Report, Confidence, RunStatus; from app.services import db_service; print('All imports OK')"
 
       - name: Run DB tests (PostgreSQL)
         run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1
