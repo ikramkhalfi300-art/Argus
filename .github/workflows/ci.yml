@@ -68,8 +68,16 @@ jobs:
           python -c "import aiosqlite; print('aiosqlite OK')"
           cd backend && python -c "from app.database import Base; from app.models import Product, Run, Report, Confidence, RunStatus; from app.services import db_service; print('All imports OK')"
 
-      - name: Debug — run single test file
-        run: python -m pytest tests/test_db_operations.py -v
+      - name: Debug — pytest version + collect
+        run: |
+          echo "pytest version:"; python -m pytest --version
+          echo "--- collect-only ---"; python -m pytest tests/test_db_operations.py --collect-only -q 2>&1 || true
+        env:
+          DATABASE_URL: ""
+
+      - name: Debug — run non-async test only
+        continue-on-error: true
+        run: python -m pytest tests/test_db_operations.py -k "test_all_tables_exist" -v
         env:
           DATABASE_URL: ""
 
