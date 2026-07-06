@@ -68,16 +68,13 @@ jobs:
           python -c "import aiosqlite; print('aiosqlite OK')"
           cd backend && python -c "from app.database import Base; from app.models import Product, Run, Report, Confidence, RunStatus; from app.services import db_service; print('All imports OK')"
 
-      - name: Debug — collect tests
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py --co 2>&1 || true
-
-      - name: Debug — run one simple test
-        run: python -m pytest tests/test_db_operations.py::test_all_tables_exist -v --tb=long 2>&1
+      - name: Debug — run single test file
+        run: python -m pytest tests/test_db_operations.py -v
         env:
           DATABASE_URL: ""
 
       - name: Run DB tests (SQLite)
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v
         env:
           DATABASE_URL: ""
 
@@ -120,15 +117,7 @@ jobs:
           python -c "import asyncpg; print('asyncpg OK')"
           cd backend && python -c "from app.database import Base; from app.models import Product, Run, Report, Confidence, RunStatus; from app.services import db_service; print('All imports OK')"
 
-      - name: Debug — collect tests
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py --co 2>&1 || true
-
-      - name: Debug — run one simple test
-        run: python -m pytest tests/test_db_operations.py::test_all_tables_exist -v --tb=long 2>&1
-        env:
-          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
-
       - name: Run DB tests (PostgreSQL)
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
