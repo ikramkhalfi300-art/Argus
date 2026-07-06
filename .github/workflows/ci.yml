@@ -59,17 +59,21 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Debug — run with output capture
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1 | tee pytest-output.txt; exit ${PIPESTATUS[0]}
+      - name: Debug — show sys.path and cwd
+        run: |
+          pwd
+          ls pytest.ini 2>/dev/null || echo "NO pytest.ini"
+          python -c "
+import sys
+print('sys.path:', sys.path)
+print('cwd:', __import__('os').getcwd())
+"
+          python -m pytest tests/test_db_operations.py tests/test_migration.py --collect-only -q 2>&1
+
+      - name: Run DB tests (SQLite)
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1
         env:
           DATABASE_URL: ""
-
-      - name: Upload pytest output on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-output-sqlite
-          path: pytest-output.txt
 
   # ── Job 3: Sprint 0.1.2 DB tests against PostgreSQL ─────────────
   backend-tests-postgres:
@@ -101,14 +105,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Debug — run with output capture
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1 | tee pytest-output.txt; exit ${PIPESTATUS[0]}
+      - name: Debug — collect tests
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py --collect-only -q 2>&1
+
+      - name: Run DB tests (PostgreSQL)
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long 2>&1
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/test_db
-
-      - name: Upload pytest output on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-output-postgres
-          path: pytest-output.txt
