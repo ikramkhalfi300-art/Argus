@@ -17,7 +17,7 @@ from app.models import Product, Run, AgentOutput, Report  # noqa: F401
 target_metadata = Base.metadata
 
 config = context.config
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url")))
+config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL") or config.get_main_option("sqlalchemy.url"))
 
 
 def run_migrations_offline():
