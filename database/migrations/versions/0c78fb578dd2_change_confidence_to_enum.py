@@ -21,22 +21,32 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
-        bind.execute(sa.text("CREATE TYPE confidence AS ENUM('Low', 'Medium', 'High')"))
-    with op.batch_alter_table('agent_outputs', schema=None) as batch_op:
-        batch_op.alter_column('confidence',
-               existing_type=sa.FLOAT(),
-               type_=sa.Enum('Low', 'Medium', 'High', name='confidence', create_type=False),
-               existing_nullable=True,
-               postgresql_using='confidence::text::confidence')
+        op.execute("CREATE TYPE confidence AS ENUM('Low', 'Medium', 'High')")
+        op.execute(
+            "ALTER TABLE agent_outputs "
+            "ALTER COLUMN confidence TYPE confidence "
+            "USING confidence::text::confidence"
+        )
+    else:
+        with op.batch_alter_table('agent_outputs', schema=None) as batch_op:
+            batch_op.alter_column('confidence',
+                   existing_type=sa.FLOAT(),
+                   type_=sa.Enum('Low', 'Medium', 'High', name='confidence'),
+                   existing_nullable=True)
 
 
 def downgrade() -> None:
-    with op.batch_alter_table('agent_outputs', schema=None) as batch_op:
-        batch_op.alter_column('confidence',
-               existing_type=sa.Enum('Low', 'Medium', 'High', name='confidence', create_type=False),
-               type_=sa.FLOAT(),
-               existing_nullable=True,
-               postgresql_using='NULL::double precision')
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
-        bind.execute(sa.text("DROP TYPE IF EXISTS confidence"))
+        op.execute(
+            "ALTER TABLE agent_outputs "
+            "ALTER COLUMN confidence TYPE DOUBLE PRECISION "
+            "USING NULL::double precision"
+        )
+        op.execute("DROP TYPE IF EXISTS confidence")
+    else:
+        with op.batch_alter_table('agent_outputs', schema=None) as batch_op:
+            batch_op.alter_column('confidence',
+                   existing_type=sa.Enum('Low', 'Medium', 'High', name='confidence'),
+                   type_=sa.FLOAT(),
+                   existing_nullable=True)
