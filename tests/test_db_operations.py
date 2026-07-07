@@ -3,7 +3,7 @@
 import os
 
 import pytest
-from sqlalchemy import inspect
+from sqlalchemy import inspect, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from app.database import Base
@@ -26,6 +26,11 @@ async def db_session_fixture():
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
+
+    if db_url.startswith("postgresql"):
+        async with engine.begin() as conn:
+            for enum_name in ("runstatus", "confidence"):
+                await conn.execute(text(f"DROP TYPE IF EXISTS {enum_name}"))
 
     await engine.dispose()
 

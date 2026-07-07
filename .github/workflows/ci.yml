@@ -95,11 +95,6 @@ jobs:
         run: pip install -r backend/requirements.txt
 
       - name: Run DB tests (PostgreSQL)
-        continue-on-error: true
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short > pytest-output.txt 2>&1
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
-
-      - name: Dump pytest errors
-        if: always()
-        run: python -c "import pathlib; p=pathlib.Path('pytest-output.txt'); lines=p.read_text().splitlines() if p.exists() else []; print(f'::error::total {len(lines)} lines'); [print(f'::error::L{i}:{l}') for i,l in enumerate(lines) if any(k in l for k in ['ERROR','FAILED','Error:','ProgrammingError','Undefined','Duplicate','not exist','relation','error type','AssertionError'])]; print('::error::--last10--'); [print(f'::error::{l}') for l in lines[-10:]]" 2>&1
