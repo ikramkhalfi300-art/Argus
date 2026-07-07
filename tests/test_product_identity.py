@@ -35,7 +35,7 @@ class TestProductIdentitySchema:
         assert identity.subcategory == "Sub"
         assert identity.variants == []
         assert identity.normalized_keywords == []
-        assert identity.detected_niche == ""
+        assert identity.detected_niche is None
         assert identity.image_refs == []
         assert identity.source_url is None
 

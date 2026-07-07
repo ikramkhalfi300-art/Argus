@@ -12,7 +12,7 @@ async def create_product_identity(db: AsyncSession, identity: ProductIdentity) -
         subcategory=identity.subcategory,
         variants=identity.variants,
         normalized_keywords=identity.normalized_keywords,
-        detected_niche=identity.detected_niche or None,
+        detected_niche=identity.detected_niche,
         image_refs=identity.image_refs,
         source_url=identity.source_url,
     )
