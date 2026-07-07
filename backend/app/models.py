@@ -27,7 +27,10 @@ class Product(Base):
     name = Column(String, nullable=False)
     category = Column(String, nullable=False)
     subcategory = Column(String, nullable=False)
+    variants = Column(JSON, nullable=False, default=list)
     normalized_keywords = Column(JSON, nullable=False, default=list)
+    detected_niche = Column(String, nullable=True)
+    image_refs = Column(JSON, nullable=False, default=list)
     source_url = Column(String, nullable=True)
     created_at = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 

@@ -99,5 +99,7 @@ async def test_migration_column_types(db_url):
         return columns
 
     cols = await check_schema()
-    for name in ("id", "name", "category", "subcategory", "normalized_keywords", "source_url", "created_at"):
+    expected = ("id", "name", "category", "subcategory", "normalized_keywords",
+                "source_url", "created_at", "variants", "detected_niche", "image_refs")
+    for name in expected:
         assert name in cols, f"Column '{name}' missing in products table"
