@@ -1,0 +1,23 @@
+name: discovery_agent
+model: claude-haiku-4-5-20251001
+provider: anthropic
+description: >
+  Given a product name or URL, identifies the product's category,
+  subcategory, normalized keywords, target niche, and IP red flags.
+  Produces a ProductIdentity ready for storage.
+
+tools:
+  - product_page_scraper
+
+input:
+  type: object
+  properties:
+    input_type:
+      type: string
+      enum: [text, url]
+    value:
+      type: string
+
+output:
+  type: object
+  schema: ProductIdentity
