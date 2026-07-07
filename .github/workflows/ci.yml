@@ -60,7 +60,7 @@ jobs:
         run: pip install -r backend/requirements.txt
 
       - name: Run DB tests (SQLite)
-        run: python -c "import os; print('::error title=DATABASE_URL(SQLite)::val=' + repr(os.getenv('DATABASE_URL')))" && python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
         env:
           DATABASE_URL: ""
 
@@ -94,27 +94,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Debug — individual test_db_operations (Postgres)
-        run: python -m pytest tests/test_db_operations.py -v --tb=long 2>&1 || echo "DB_OPS FAILED"
+      - name: Run DB tests (PostgreSQL)
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
-
-      - name: Debug — individual test_migration (Postgres)
-        run: python -m pytest tests/test_migration.py -v --tb=long 2>&1 || echo "MIGRATION FAILED"
-        env:
-          DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
-
-      - name: Print DATABASE_URL (Postgres)
-        run: python -c "import os; print('::error title=DATABASE_URL(PG)::val=' + repr(os.getenv('DATABASE_URL')))"
-        env:
-          DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
-
-      - name: Combined run (Postgres)
-        continue-on-error: true
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short > pytest-output.txt 2>&1
-        env:
-          DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
-
-      - name: Dump pytest output tail
-        if: always()
-        run: python -c "import pathlib; p=pathlib.Path('pytest-output.txt'); lines=p.read_text().splitlines() if p.exists() else []; print(f'::error::total {len(lines)} lines'); [print(f'::error::L{i}:{l}') for i,l in enumerate(lines) if any(k in l for k in ['ERROR','FAILED','Error:','ProgrammingError','UndefinedTable','Duplicate','not exist','relation'])]; print('::error::--last 20--'); [print(f'::error::{l}') for l in lines[-20:]]" 2>&1
