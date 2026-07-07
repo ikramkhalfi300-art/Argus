@@ -59,11 +59,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Print DATABASE_URL (SQLite)
-        run: python -c "import os; print('::error title=DATABASE_URL(SQLite)::val=' + repr(os.getenv('DATABASE_URL')))"
-
       - name: Run DB tests (SQLite)
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
+        run: python -c "import os; print('::error title=DATABASE_URL(SQLite)::val=' + repr(os.getenv('DATABASE_URL')))" && python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
         env:
           DATABASE_URL: ""
 
@@ -109,6 +106,8 @@ jobs:
 
       - name: Print DATABASE_URL (Postgres)
         run: python -c "import os; print('::error title=DATABASE_URL(PG)::val=' + repr(os.getenv('DATABASE_URL')))"
+        env:
+          DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
 
       - name: Combined run (Postgres)
         continue-on-error: true
