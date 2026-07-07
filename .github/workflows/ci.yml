@@ -60,7 +60,7 @@ jobs:
         run: pip install -r backend/requirements.txt
 
       - name: Run DB tests (SQLite)
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
+        run: python -c "import os; print('DATABASE_URL repr:', repr(os.getenv('DATABASE_URL'))); import sys; sys.path.insert(0,'backend'); from app.database import DATABASE_URL; print('parsed DATABASE_URL:', DATABASE_URL)" && python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
         env:
           DATABASE_URL: ""
 
@@ -104,12 +104,12 @@ jobs:
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
 
-      - name: Combined run (Postgres) — capture all output
+      - name: Combined run (Postgres)
         continue-on-error: true
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short > pytest-output.txt 2>&1
+        run: python -c "import os; print('DATABASE_URL repr:', repr(os.getenv('DATABASE_URL'))); import sys; sys.path.insert(0,'backend'); from app.database import DATABASE_URL; print('parsed DATABASE_URL:', DATABASE_URL)" && python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short > pytest-output.txt 2>&1
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
 
-      - name: Dump full pytest output
+      - name: Dump pytest output tail
         if: always()
-        run: head -200 pytest-output.txt 2>/dev/null | while IFS= read -r line; do echo "::warning file=pytest-output.txt,title=pg-test::${line}"; done || echo "no file"
+        run: tail -50 pytest-output.txt 2>/dev/null | while IFS= read -r line; do echo "::warning file=pytest-output.txt,title=pg-tail::${line}"; done || echo "no file"
