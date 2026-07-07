@@ -106,10 +106,10 @@ jobs:
 
       - name: Combined run (Postgres) — capture all output
         continue-on-error: true
-        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long > pytest-output.txt 2>&1
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short > pytest-output.txt 2>&1
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
 
-      - name: Show pytest output (last 80 lines)
+      - name: Dump full pytest output
         if: always()
-        run: tail -40 pytest-output.txt 2>/dev/null | while IFS= read -r line; do echo "::error file=pytest-output.txt,title=pg combined::${line}"; done || echo "No output file found"
+        run: head -200 pytest-output.txt 2>/dev/null | while IFS= read -r line; do echo "::warning file=pytest-output.txt,title=pg-test::${line}"; done || echo "no file"
