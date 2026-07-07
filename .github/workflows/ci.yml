@@ -94,12 +94,22 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
-      - name: Run DB tests (PostgreSQL)
+      - name: Debug — individual test_db_operations (Postgres)
+        run: python -m pytest tests/test_db_operations.py -v --tb=long 2>&1 || echo "DB_OPS FAILED"
+        env:
+          DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
+
+      - name: Debug — individual test_migration (Postgres)
+        run: python -m pytest tests/test_migration.py -v --tb=long 2>&1 || echo "MIGRATION FAILED"
+        env:
+          DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
+
+      - name: Combined run (Postgres) — capture all output
         continue-on-error: true
         run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long > pytest-output.txt 2>&1
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
 
-      - name: Emit pytest output as annotations
+      - name: Show pytest output (last 50 lines)
         if: always()
-        run: tail -30 pytest-output.txt | while IFS= read -r line; do echo "::error file=pytest-output.txt,title=pg test::${line}"; done 2>/dev/null || echo "No output file"
+        run: tail -50 pytest-output.txt 2>/dev/null || echo "No output file found"
