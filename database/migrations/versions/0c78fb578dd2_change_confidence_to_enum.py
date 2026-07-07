@@ -36,7 +36,7 @@ def downgrade() -> None:
                existing_type=sa.Enum('Low', 'Medium', 'High', name='confidence', create_type=False),
                type_=sa.FLOAT(),
                existing_nullable=True,
-               postgresql_using='confidence::float')
+               postgresql_using='NULL::double precision')
     bind = op.get_bind()
     if bind.dialect.name == "postgresql":
         bind.execute(sa.text("DROP TYPE IF EXISTS confidence"))
