@@ -117,4 +117,4 @@ jobs:
 
       - name: Dump pytest output tail
         if: always()
-        run: tail -50 pytest-output.txt 2>/dev/null | while IFS= read -r line; do echo "::warning file=pytest-output.txt,title=pg-tail::${line}"; done || echo "no file"
+        run: python -c "import pathlib; p=pathlib.Path('pytest-output.txt'); lines=p.read_text().splitlines() if p.exists() else []; print(f'::error::total {len(lines)} lines'); [print(f'::error::L{i}:{l}') for i,l in enumerate(lines) if any(k in l for k in ['ERROR','FAILED','Error:','ProgrammingError','UndefinedTable','Duplicate','not exist','relation'])]; print('::error::--last 20--'); [print(f'::error::{l}') for l in lines[-20:]]" 2>&1
