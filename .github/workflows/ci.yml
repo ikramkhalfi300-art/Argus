@@ -59,8 +59,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r backend/requirements.txt
 
+      - name: Print DATABASE_URL (SQLite)
+        run: python -c "import os; print('::error title=DATABASE_URL(SQLite)::val=' + repr(os.getenv('DATABASE_URL')))"
+
       - name: Run DB tests (SQLite)
-        run: python -c "import os; print('DATABASE_URL repr:', repr(os.getenv('DATABASE_URL'))); import sys; sys.path.insert(0,'backend'); from app.database import DATABASE_URL; print('parsed DATABASE_URL:', DATABASE_URL)" && python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=long
         env:
           DATABASE_URL: ""
 
@@ -104,9 +107,12 @@ jobs:
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
 
+      - name: Print DATABASE_URL (Postgres)
+        run: python -c "import os; print('::error title=DATABASE_URL(PG)::val=' + repr(os.getenv('DATABASE_URL')))"
+
       - name: Combined run (Postgres)
         continue-on-error: true
-        run: python -c "import os; print('DATABASE_URL repr:', repr(os.getenv('DATABASE_URL'))); import sys; sys.path.insert(0,'backend'); from app.database import DATABASE_URL; print('parsed DATABASE_URL:', DATABASE_URL)" && python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short > pytest-output.txt 2>&1
+        run: python -m pytest tests/test_db_operations.py tests/test_migration.py -v --tb=short > pytest-output.txt 2>&1
         env:
           DATABASE_URL: "postgresql+asyncpg://postgres:postgres@localhost:5432/test_db"
 
