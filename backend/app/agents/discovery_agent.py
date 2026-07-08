@@ -1,6 +1,9 @@
 import json
+import logging
 import os
 from pathlib import Path
+
+logger = logging.getLogger("discovery_agent")
 
 from app.schemas.product_identity import ProductIdentity
 
@@ -50,32 +53,69 @@ def _flatten(value: str | list | dict) -> str:
     return ""
 
 
+_CATEGORY_PREFERRED = {"primary", "secondary", "tertiary"}
+_CATEGORY_FALLBACK = {"primary_category", "secondary_category", "tertiary_category"}
+
+
+def _pick_category_dict(d: dict) -> dict | None:
+    if _CATEGORY_PREFERRED & d.keys():
+        return {k: d[k] for k in _CATEGORY_PREFERRED if k in d}
+    if _CATEGORY_FALLBACK & d.keys():
+        return {k: d[k] for k in _CATEGORY_FALLBACK if k in d}
+    return d
+
+
+def _extract_niche_text(niche_val: str | dict | None) -> str | None:
+    if niche_val is None:
+        return None
+    if isinstance(niche_val, str):
+        return niche_val if niche_val.strip() else None
+    parts = []
+    for key in ("primary", "secondary", "primary_niche", "demographic", "demographics", "description"):
+        v = niche_val.get(key)
+        if isinstance(v, str) and v.strip():
+            parts.append(v.strip())
+        elif isinstance(v, list):
+            parts.extend(str(item) for item in v if isinstance(item, str) and item.strip())
+    return "; ".join(parts) if parts else None
+
+
 def _normalize_llm_output(data: dict) -> dict:
     data = _unwrap(data)
     name = data.get("name") or data.get("product_name") or data.get("product") or ""
-    cat_val = data.get("category", "")
+    cat_val = data.get("category") or data.get("category_structure") or ""
+    if isinstance(cat_val, dict):
+        cat_val = _pick_category_dict(cat_val)
     cat = _flatten(cat_val)
     sub = _flatten(data.get("subcategory", ""))
-    if not sub:
-        if isinstance(cat_val, dict):
-            sub = _flatten(cat_val.get("tertiary", ""))
+    if not sub and isinstance(cat_val, dict):
+        sub = _flatten(cat_val.get("tertiary", ""))
         if not sub:
-            sub = _flatten(data.get("product_type", ""))
+            sub = _flatten(cat_val.get("tertiary_category", ""))
+    if not sub:
+        sub = _flatten(data.get("product_type", ""))
         if not sub:
             sub = _flatten(data.get("specific_type", ""))
     kw = (data.get("normalized_keywords")
+          or data.get("normalized_search_keywords")
           or data.get("keywords")
           or data.get("search_keywords")
           or data.get("tags")
           or [])
     niche = (data.get("detected_niche")
+             or _extract_niche_text(data.get("target_customer_niche"))
+             or _extract_niche_text(data.get("customer_niche"))
              or data.get("target_niche")
-             or data.get("customer_niche")
              or data.get("niche"))
     if not cat:
         cat = "Unknown"
     if not sub:
         sub = "Unknown"
+
+    red_flags = data.get("authenticity_assessment")
+    if red_flags and isinstance(red_flags, dict):
+        logger.info("Authenticity assessment: %s", json.dumps(red_flags, ensure_ascii=False))
+
     return {
         "name": name,
         "category": cat,
