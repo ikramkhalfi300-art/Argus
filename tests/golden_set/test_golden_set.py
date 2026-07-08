@@ -37,6 +37,9 @@ async def test_golden_sony_headphones():
     assert isinstance(identity, ProductIdentity)
     assert identity.name and "Sony" in identity.name
     assert len(identity.category) >= 5
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert len(identity.normalized_keywords) >= 3
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
 
 
 @pytest.mark.asyncio
@@ -47,6 +50,9 @@ async def test_golden_nike_shoes():
     assert isinstance(identity, ProductIdentity)
     assert identity.name and "Nike" in identity.name
     assert len(identity.category) >= 3
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert len(identity.normalized_keywords) >= 3
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
 
 
 @pytest.mark.asyncio
@@ -62,6 +68,8 @@ async def test_golden_generic_bluetooth_speaker():
     )
     print(f"\n--- Generic Bluetooth Speaker (hallucination guardrail) ---\n{_dump(identity)}")
     assert isinstance(identity, ProductIdentity)
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
     known_brands = {"bose", "jbl", "sony", "marshall", "ultimate ears", "anker", "bang & olufsen"}
     name_lower = identity.name.lower()
     for brand in known_brands:
@@ -81,6 +89,8 @@ async def test_golden_wool_coat_without_brand():
     )
     print(f"\n--- Wool Coat (hallucination guardrail) ---\n{_dump(identity)}")
     assert isinstance(identity, ProductIdentity)
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
     luxury_brands = {"burberry", "gucci", "prada", "max mara", "loro piana", "moncler"}
     name_lower = identity.name.lower()
     for brand in luxury_brands:
@@ -96,6 +106,8 @@ async def test_golden_ergonomic_keyboard():
     assert isinstance(identity, ProductIdentity)
     assert len(identity.name) >= 10
     assert len(identity.subcategory) >= 3
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
 
 
 @pytest.mark.asyncio
@@ -106,6 +118,8 @@ async def test_golden_camping_tent():
     assert isinstance(identity, ProductIdentity)
     assert len(identity.name) >= 10
     assert len(identity.category) >= 5
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
 
 
 @pytest.mark.asyncio
@@ -116,6 +130,8 @@ async def test_golden_matcha_powder():
     assert isinstance(identity, ProductIdentity)
     assert len(identity.name) >= 10
     assert len(identity.category) >= 5
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
 
 
 @pytest.mark.asyncio
@@ -130,6 +146,8 @@ async def test_golden_white_label_usb_cable():
     )
     print(f"\n--- Generic USB-C Cable (hallucination guardrail) ---\n{_dump(identity)}")
     assert isinstance(identity, ProductIdentity)
+    assert identity.normalized_keywords, "Prompt requires 5-10 keywords"
+    assert identity.detected_niche is not None, "Prompt requires detected_niche"
     cable_brands = {"anker", "belkin", "apple", "samsung", "nomad", "ugreen", "baseus"}
     name_lower = identity.name.lower()
     for brand in cable_brands:

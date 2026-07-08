@@ -57,15 +57,15 @@ class TestAnalyzeProductMock:
         assert not hasattr(identity, "made_up_field")
 
     @pytest.mark.asyncio
-    async def test_empty_fields_fall_back_to_defaults(self):
-        mock = {"name": "", "category": "", "subcategory": ""}
-        identity = await analyze_product("text", "bad", _mock_response=mock)
-        assert identity.name == "bad"
-        assert identity.category == "Unknown"
-        assert identity.subcategory == "Unknown"
+    async def test_empty_name_falls_back_to_input(self):
+        mock = {"name": "", "category": "Test", "subcategory": "Sub"}
+        identity = await analyze_product("text", "fallback", _mock_response=mock)
+        assert identity.name == "fallback"
+        assert identity.category == "Test"
+        assert identity.subcategory == "Sub"
 
     @pytest.mark.asyncio
-    async def test_rejects_invalid_identity(self):
+    async def test_rejects_empty_name_without_fallback(self):
         mock = {}
         with pytest.raises(ValidationError):
             await analyze_product("text", "", _mock_response=mock)
