@@ -1,0 +1,23 @@
+# Default pillar weights (Architecture Section 2.1 — The Investment Scorecard)
+# Composite Score = Σ(pillar_score × weight)
+#
+# Last updated: 2026-07-09
+# Sprint: 2.1.2
+#
+# These weights are the approved defaults from the architecture. They are loaded
+# at runtime by composite_score.py and must never be hardcoded in the scoring
+# logic itself — this file is the single source of truth for weight configuration.
+#
+# The "possible improvements" note in Architecture Section 8 explicitly
+# contemplates making these configurable per-user in the future. Loading from
+# YAML now (rather than hardcoding) means no code change is needed when that
+# feature is implemented — only this file (or a per-user override file) needs
+# to change.
+
+demand_strength: 0.20
+unit_economics: 0.20
+competitive_saturation: 0.15
+creative_runway: 0.15
+customer_psychology_fit: 0.10
+risk_profile: 0.10
+reviews_sentiment_quality: 0.10
