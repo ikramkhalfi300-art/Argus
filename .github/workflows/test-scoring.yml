@@ -1,0 +1,50 @@
+name: Scoring Engine — Golden Dataset Regression Suite
+
+on:
+  push:
+    paths:
+      - 'scoring/**'
+      - 'tests/scoring_tests/**'
+      - 'tests/test_hard_vetoes.py'
+      - 'tests/test_confidence_calculator.py'
+      - 'tests/test_composite_score.py'
+      - 'tests/test_agent_output_contract.py'
+      - 'backend/app/schemas/agent_output.py'
+      - 'pytest.ini'
+      - '.github/workflows/test-scoring.yml'
+  pull_request:
+    paths:
+      - 'scoring/**'
+      - 'tests/scoring_tests/**'
+
+jobs:
+  golden-dataset:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio
+
+      - name: Run golden-dataset regression suite
+        run: |
+          python -m pytest ../tests/scoring_tests/test_scoring_engine_full.py -v --tb=short
+
+      - name: Run individual unit tests for scoring components
+        run: |
+          python -m pytest ../tests/test_composite_score.py -v --tb=short
+          python -m pytest ../tests/test_hard_vetoes.py -v --tb=short
+          python -m pytest ../tests/test_confidence_calculator.py -v --tb=short
+          python -m pytest ../tests/test_agent_output_contract.py -v --tb=short

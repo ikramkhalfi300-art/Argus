@@ -1,0 +1,330 @@
+{
+  "meta": {
+    "description": "Golden dataset for Scoring Engine regression testing (Milestone 2.1).",
+    "created": "2026-07-09",
+    "sprint": "2.1.4",
+    "total_scenarios": 14,
+    "coverage": [
+      "Clean GO (composite >= 75, no vetoes, high confidence)",
+      "Clean NO-GO (composite < 55, no vetoes — score-based only)",
+      "GO/CONDITIONAL boundary: 76 and 74",
+      "CONDITIONAL/NO-GO boundary: 56 and 54",
+      "Each veto rule individually (high score but vetoed)",
+      "Multiple simultaneous vetoes (margin + compliance)",
+      "Missing data with low confidence (3 pillars absent, weight redistribution)",
+      "All zeros extreme low end"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": 1,
+      "name": "Clean GO — high scores, no vetoes, high confidence",
+      "proves": "Composite score >= 75 produces GO verdict without veto interference. All 4 veto rules correctly pass.",
+      "expected_composite": 81.0,
+      "expected_threshold_verdict": "GO",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"active_ad_count": 34, "creative_diversity_score": 72}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"hashtag_views": 3000000}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"net_margin_pct_after_ads": 28.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"active_advertiser_count": 8, "avg_ad_run_duration_days": 40, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"gaps_identified": ["no bundle options"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"viable_angles": ["angle A", "angle B", "angle C"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low", "overall_risk_level": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"avg_rating": 4.3, "review_volume": 187}}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Clean NO-GO — low scores, no vetoes (score-based only)",
+      "proves": "Composite score < 55 produces NO-GO verdict via math alone, without needing any veto. Proves system can say no objectively.",
+      "expected_composite": 42.375,
+      "expected_threshold_verdict": "NO-GO",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "Medium",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 45.0, "confidence": "Medium", "data_completeness_pct": 75.0, "raw_findings": {"active_ad_count": 5}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 35.0, "confidence": "Medium", "data_completeness_pct": 70.0, "raw_findings": {"hashtag_views": 100000}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 40.0, "confidence": "Medium", "data_completeness_pct": 65.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 50.0, "confidence": "Medium", "data_completeness_pct": 70.0, "raw_findings": {"net_margin_pct_after_ads": 18.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 45.0, "confidence": "Medium", "data_completeness_pct": 65.0, "raw_findings": {"active_advertiser_count": 15, "avg_ad_run_duration_days": 50, "market_stage": "Peak"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 40.0, "confidence": "Medium", "data_completeness_pct": 60.0, "raw_findings": {"gaps_identified": [], "competitive_barrier": "High"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 30.0, "confidence": "Medium", "data_completeness_pct": 60.0, "raw_findings": {"viable_angles": ["angle A", "angle B"], "fatigue_risk_level": "Medium"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 50.0, "confidence": "Medium", "data_completeness_pct": 65.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 55.0, "confidence": "Medium", "data_completeness_pct": 70.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low", "overall_risk_level": "Moderate"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 40.0, "confidence": "Medium", "data_completeness_pct": 60.0, "raw_findings": {"avg_rating": 3.2, "review_volume": 23}}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Borderline GO — composite 76 (just above GO threshold)",
+      "proves": "Score of 76 correctly produces GO. No off-by-one error at the 75 boundary.",
+      "expected_composite": 76.0,
+      "expected_threshold_verdict": "GO",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 82.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 72.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"net_margin_pct_after_ads": 25.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"active_advertiser_count": 6, "avg_ad_run_duration_days": 35, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 65.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"gaps_identified": ["bundle opportunity"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 84.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"viable_angles": ["angle A", "angle B", "angle C"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"avg_rating": 4.0, "review_volume": 100}}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Borderline CONDITIONAL — composite 74 (just below GO threshold)",
+      "proves": "Score of 74 correctly produces CONDITIONAL, not GO. Boundary is handled symmetrically on both sides (see scenario 3).",
+      "expected_composite": 74.0,
+      "expected_threshold_verdict": "CONDITIONAL",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"net_margin_pct_after_ads": 25.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"active_advertiser_count": 6, "avg_ad_run_duration_days": 35, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 65.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"gaps_identified": ["bundle opportunity"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 82.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"viable_angles": ["angle A", "angle B", "angle C"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 72.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"avg_rating": 4.0, "review_volume": 100}}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Borderline CONDITIONAL — composite 56 (just above NO-GO threshold)",
+      "proves": "Score of 56 correctly produces CONDITIONAL. No off-by-one error at the 55 boundary.",
+      "expected_composite": 56.0,
+      "expected_threshold_verdict": "CONDITIONAL",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"net_margin_pct_after_ads": 20.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"active_advertiser_count": 4, "avg_ad_run_duration_days": 30, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"gaps_identified": ["gap"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"viable_angles": ["angle A", "angle B"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 56.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"avg_rating": 4.0, "review_volume": 100}}
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Borderline NO-GO — composite 54 (just below NO-GO threshold)",
+      "proves": "Score of 54 correctly produces NO-GO. Boundary handled on both sides (see scenario 5).",
+      "expected_composite": 54.0,
+      "expected_threshold_verdict": "NO-GO",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"net_margin_pct_after_ads": 20.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"active_advertiser_count": 4, "avg_ad_run_duration_days": 30, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"gaps_identified": ["gap"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"viable_angles": ["angle A", "angle B"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 54.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {"avg_rating": 4.0, "review_volume": 100}}
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Margin veto — composite 80 (>=75 GO) but net margin = 10% (< 15)",
+      "proves": "Margin veto overrides high composite score. margin_analysis_agent.raw_findings.net_margin_pct_after_ads = 10.0 triggers the rule. Other 3 veto rules do NOT false-trigger.",
+      "expected_composite": 80.0,
+      "expected_threshold_verdict": "GO",
+      "expected_vetoed": true,
+      "expected_triggered_rules": ["Net margin after realistic CPA < 15%"],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"net_margin_pct_after_ads": 10.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"active_advertiser_count": 4, "avg_ad_run_duration_days": 30, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"gaps_identified": ["bundle opp"], "competitive_barrier": "Low"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"viable_angles": ["angle A", "angle B", "angle C"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}}
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Compliance veto — composite 75 (GO) but legal_risk = Severe",
+      "proves": "Compliance veto overrides high composite score. risk_analysis_agent.raw_findings.legal_risk = 'Severe' triggers the rule. Other 3 veto rules do NOT false-trigger.",
+      "expected_composite": 75.275,
+      "expected_threshold_verdict": "GO",
+      "expected_vetoed": true,
+      "expected_triggered_rules": ["Product flagged on legal/compliance blocklist"],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 82.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 78.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"net_margin_pct_after_ads": 22.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"active_advertiser_count": 5, "avg_ad_run_duration_days": 30, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"gaps_identified": ["bundle opportunity"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 78.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"viable_angles": ["angle A", "angle B", "angle C"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 72.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 60.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"legal_risk": "Severe", "platform_policy_risk": "Low", "overall_risk_level": "Severe"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"avg_rating": 4.0, "review_volume": 100}}
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Creative angles veto — composite 72 (CONDITIONAL) but only 1 viable angle",
+      "proves": "Creative angles veto overrides composite score. creative_opportunity_agent.raw_findings.viable_angles has length 1 (< 2). Other 3 veto rules do NOT false-trigger.",
+      "expected_composite": 72.05,
+      "expected_threshold_verdict": "CONDITIONAL",
+      "expected_vetoed": true,
+      "expected_triggered_rules": ["Fewer than 2 viable creative angles"],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 85.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"net_margin_pct_after_ads": 20.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"active_advertiser_count": 6, "avg_ad_run_duration_days": 40, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"gaps_identified": ["bundle opp"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 35.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"viable_angles": ["only one angle"], "fatigue_risk_level": "High"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 73.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"avg_rating": 4.0, "review_volume": 100}}
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Saturation veto — no differentiation angle available",
+      "proves": "Saturation veto overrides composite. 12 advertisers >5, 90 days >=60. gaps_identified empty, angle_saturation_map all 'crowded'. Other 3 veto rules do NOT false-trigger.",
+      "expected_composite": 69.05,
+      "expected_threshold_verdict": "CONDITIONAL",
+      "expected_vetoed": true,
+      "expected_triggered_rules": ["Market saturated: >5 advertisers, 60+ days, no differentiation angle available"],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 72.0, "confidence": "Medium", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 68.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"net_margin_pct_after_ads": 20.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 55.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"active_advertiser_count": 12, "avg_ad_run_duration_days": 90, "market_stage": "Peak"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 55.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"top_competitors": [{"name": "Store A", "estimated_scale": "large", "price": 29.99}], "gaps_identified": [], "competitive_barrier": "High"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 62.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"viable_angles": ["angle A", "angle B"], "angle_saturation_map": {"angle A": "crowded", "angle B": "crowded"}, "fatigue_risk_level": "High"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 75.0, "confidence": "Medium", "data_completeness_pct": 85.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 80.0, "confidence": "Medium", "data_completeness_pct": 80.0, "raw_findings": {"avg_rating": 4.0, "review_volume": 100}}
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Multiple simultaneous vetoes — margin < 15% AND legal_risk = Severe",
+      "proves": "Two veto rules can trigger simultaneously without conflict. Both 'Net margin after realistic CPA < 15%' and 'Product flagged on legal/compliance blocklist' fire. Composite ~60 is CONDITIONAL but vetoes override to NO-GO.",
+      "expected_composite": 60.0,
+      "expected_threshold_verdict": "CONDITIONAL",
+      "expected_vetoed": true,
+      "expected_triggered_rules": [
+        "Net margin after realistic CPA < 15%",
+        "Product flagged on legal/compliance blocklist"
+      ],
+      "expected_confidence": "Medium",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 70.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 70.0, "confidence": "Medium", "data_completeness_pct": 65.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 55.0, "confidence": "Medium", "data_completeness_pct": 60.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 60.0, "confidence": "Medium", "data_completeness_pct": 65.0, "raw_findings": {"net_margin_pct_after_ads": 10.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 65.0, "confidence": "Medium", "data_completeness_pct": 70.0, "raw_findings": {"active_advertiser_count": 6, "avg_ad_run_duration_days": 40, "market_stage": "Growing"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 55.0, "confidence": "Medium", "data_completeness_pct": 65.0, "raw_findings": {"gaps_identified": ["bundle opp"], "competitive_barrier": "Medium"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 60.0, "confidence": "Medium", "data_completeness_pct": 60.0, "raw_findings": {"viable_angles": ["angle A", "angle B"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 60.0, "confidence": "Medium", "data_completeness_pct": 60.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 55.0, "confidence": "Medium", "data_completeness_pct": 65.0, "raw_findings": {"legal_risk": "Severe", "platform_policy_risk": "Low", "overall_risk_level": "Severe"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 50.0, "confidence": "Medium", "data_completeness_pct": 55.0, "raw_findings": {"avg_rating": 3.5, "review_volume": 50}}
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Missing data with Low confidence — 4 pillars missing, completeness = 30%",
+      "proves": "3 pillars absent (competitive_saturation, customer_psychology_fit, reviews_sentiment_quality) triggers weight redistribution. avg completeness = 30% produces Low confidence. creative_angles veto NOT triggered (viable_angles has 2 entries). margin veto NOT triggered (25% >= 15). compliance veto NOT triggered (both Low). saturation veto unverifiable (no market_saturation_agent).",
+      "expected_composite": 60.769231,
+      "expected_threshold_verdict": "CONDITIONAL",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "Low",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 70.0, "confidence": "Low", "data_completeness_pct": 30.0, "raw_findings": {"active_ad_count": 2}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 60.0, "confidence": "Low", "data_completeness_pct": 30.0, "raw_findings": {"net_margin_pct_after_ads": 25.0}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 50.0, "confidence": "Low", "data_completeness_pct": 30.0, "raw_findings": {"viable_angles": ["angle A", "angle B"], "fatigue_risk_level": "Medium"}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 60.0, "confidence": "Low", "data_completeness_pct": 30.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low"}}
+      ]
+    },
+    {
+      "id": 13,
+      "name": "Near-perfect score, no vetoes — all agents at 95",
+      "proves": "Ceiling behavior: all agents near max produce ~95 composite. No false-positive vetoes from clean data. 4 viable angles, margin 35%, saturation 3 advertisers/20 days, legal Low.",
+      "expected_composite": 95.0,
+      "expected_threshold_verdict": "GO",
+      "expected_vetoed": false,
+      "expected_triggered_rules": [],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"active_ad_count": 34, "creative_diversity_score": 80}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"hashtag_views": 5000000}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"net_margin_pct_after_ads": 35.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"active_advertiser_count": 3, "avg_ad_run_duration_days": 20, "market_stage": "Emerging"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"gaps_identified": ["no bundle"], "competitive_barrier": "Low"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"viable_angles": ["angle A", "angle B", "angle C", "angle D"], "fatigue_risk_level": "Low"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"legal_risk": "Low", "platform_policy_risk": "Low", "overall_risk_level": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 95.0, "confidence": "High", "data_completeness_pct": 100.0, "raw_findings": {"avg_rating": 4.8, "review_volume": 500}}
+      ]
+    },
+    {
+      "id": 14,
+      "name": "All zeros — worst-case: all 4 vetoes trigger, composite ~2.8",
+      "proves": "Extreme low end: near-zero scores, all 4 veto rules trigger simultaneously. This tests the system under maximum stress — no degenerate behavior when every signal is at floor.",
+      "expected_composite": 2.775,
+      "expected_threshold_verdict": "NO-GO",
+      "expected_vetoed": true,
+      "expected_triggered_rules": [
+        "Net margin after realistic CPA < 15%",
+        "Product flagged on legal/compliance blocklist",
+        "Fewer than 2 viable creative angles",
+        "Market saturated: >5 advertisers, 60+ days, no differentiation angle available"
+      ],
+      "expected_confidence": "High",
+      "agent_outputs": [
+        {"agent_name": "fb_ads_analysis_agent", "pillar": "demand_strength", "sub_score": 5.0, "confidence": "Low", "data_completeness_pct": 95.0, "raw_findings": {}},
+        {"agent_name": "tiktok_trend_agent", "pillar": "demand_strength", "sub_score": 3.0, "confidence": "Low", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "pricing_analysis_agent", "pillar": "unit_economics", "sub_score": 2.0, "confidence": "Low", "data_completeness_pct": 95.0, "raw_findings": {}},
+        {"agent_name": "margin_analysis_agent", "pillar": "unit_economics", "sub_score": 1.0, "confidence": "Low", "data_completeness_pct": 95.0, "raw_findings": {"net_margin_pct_after_ads": 5.0}},
+        {"agent_name": "market_saturation_agent", "pillar": "competitive_saturation", "sub_score": 4.0, "confidence": "Low", "data_completeness_pct": 90.0, "raw_findings": {"active_advertiser_count": 20, "avg_ad_run_duration_days": 80, "market_stage": "Declining"}},
+        {"agent_name": "competitor_analysis_agent", "pillar": "competitive_saturation", "sub_score": 3.0, "confidence": "Low", "data_completeness_pct": 90.0, "raw_findings": {"gaps_identified": [], "competitive_barrier": "Very High"}},
+        {"agent_name": "creative_opportunity_agent", "pillar": "creative_runway", "sub_score": 1.0, "confidence": "Low", "data_completeness_pct": 95.0, "raw_findings": {"viable_angles": ["only one"], "fatigue_risk_level": "Critical"}},
+        {"agent_name": "customer_psychology_agent", "pillar": "customer_psychology_fit", "sub_score": 3.0, "confidence": "Low", "data_completeness_pct": 90.0, "raw_findings": {}},
+        {"agent_name": "risk_analysis_agent", "pillar": "risk_profile", "sub_score": 5.0, "confidence": "Low", "data_completeness_pct": 95.0, "raw_findings": {"legal_risk": "Severe", "platform_policy_risk": "Low"}},
+        {"agent_name": "amazon_review_agent", "pillar": "reviews_sentiment_quality", "sub_score": 2.0, "confidence": "Low", "data_completeness_pct": 90.0, "raw_findings": {"avg_rating": 1.5, "review_volume": 3}}
+      ]
+    }
+  ]
+}
