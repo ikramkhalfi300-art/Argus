@@ -3,7 +3,12 @@
 import pytest
 from pydantic import ValidationError
 
-from app.agents.discovery_agent import analyze_product, _build_input_text
+from app.agents.discovery_agent import (
+    analyze_product,
+    analyze_product_image,
+    analyze_niche_shortlist,
+    _build_input_text,
+)
 from app.schemas.product_identity import ProductIdentity
 
 
@@ -69,3 +74,69 @@ class TestAnalyzeProductMock:
         mock = {}
         with pytest.raises(ValidationError):
             await analyze_product("text", "", _mock_response=mock)
+
+
+class TestAnalyzeProductImageMock:
+    @pytest.mark.asyncio
+    async def test_returns_valid_identity_from_image(self):
+        mock = {
+            "name": "Image Product",
+            "category": "Electronics",
+            "subcategory": "Headphones",
+            "normalized_keywords": ["wireless", "headphones", "noise cancelling"],
+            "detected_niche": "audio enthusiasts",
+        }
+        identity = await analyze_product_image(
+            "https://example.com/img/headphone.jpg",
+            _mock_response=mock,
+        )
+        assert isinstance(identity, ProductIdentity)
+        assert identity.name == "Image Product"
+        assert identity.detected_niche == "audio enthusiasts"
+
+    @pytest.mark.asyncio
+    async def test_image_product_requires_name(self):
+        mock = {"category": "Test", "subcategory": "Item"}
+        identity = await analyze_product_image(
+            "https://example.com/img/item.jpg",
+            _mock_response=mock,
+        )
+        assert identity.name == "Unknown Product"
+
+
+class TestAnalyzeNicheShortlistMock:
+    @pytest.mark.asyncio
+    async def test_returns_list_of_identities(self):
+        mock = [
+            {
+                "name": "Niche Product A",
+                "category": "Home",
+                "subcategory": "Kitchen",
+                "normalized_keywords": ["eco", "kitchen"],
+                "detected_niche": "eco-conscious home cooks",
+            },
+            {
+                "name": "Niche Product B",
+                "category": "Home",
+                "subcategory": "Bathroom",
+                "normalized_keywords": ["bamboo", "bath"],
+                "detected_niche": "zero-waste bathroom",
+            },
+        ]
+        results = await analyze_niche_shortlist("eco-friendly home products", _mock_response=mock)
+        assert len(results) == 2
+        assert all(isinstance(r, ProductIdentity) for r in results)
+        assert results[0].name == "Niche Product A"
+        assert results[1].name == "Niche Product B"
+
+    @pytest.mark.asyncio
+    async def test_all_candidates_valid(self):
+        mock = [
+            {"name": "P1", "category": "A", "subcategory": "B"},
+            {"name": "P2", "category": "C", "subcategory": "D"},
+        ]
+        results = await analyze_niche_shortlist("test", _mock_response=mock)
+        for r in results:
+            assert r.name
+            assert r.category
+            assert r.subcategory

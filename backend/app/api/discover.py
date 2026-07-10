@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.agents.discovery_agent import analyze_product
+from app.agents.discovery_agent import analyze_product, analyze_product_image, analyze_niche_shortlist
 from app.database import get_db
 from integrations.product_page_scraper import scrape_product_page
 from app.schemas.product_identity import ProductIdentity
@@ -12,17 +12,22 @@ router = APIRouter()
 
 
 class DiscoverRequest(BaseModel):
-    input_type: str = Field(..., pattern="^(text|url)$")
+    input_type: str = Field(..., pattern="^(text|url|image|niche_query)$")
     value: str = Field(..., min_length=1)
 
 
 class DiscoverResponse(BaseModel):
-    id: int
-    identity: ProductIdentity
+    id: int | None = None
+    identity: ProductIdentity | None = None
+    candidates: list[ProductIdentity] | None = None
 
 
 @router.post("/api/discover", response_model=DiscoverResponse)
 async def discover(req: DiscoverRequest, db: AsyncSession = Depends(get_db)):
+    if req.input_type == "niche_query":
+        candidates = await analyze_niche_shortlist(req.value)
+        return DiscoverResponse(candidates=candidates)
+
     scraped_data = None
     if req.input_type == "url":
         try:
@@ -38,11 +43,14 @@ async def discover(req: DiscoverRequest, db: AsyncSession = Depends(get_db)):
         except Exception:
             scraped_data = None
 
-    identity = await analyze_product(
-        input_type=req.input_type,
-        value=req.value,
-        scraped_data=scraped_data,
-    )
+    if req.input_type == "image":
+        identity = await analyze_product_image(req.value)
+    else:
+        identity = await analyze_product(
+            input_type=req.input_type,
+            value=req.value,
+            scraped_data=scraped_data,
+        )
 
     product = await create_product_identity(db, identity)
     return DiscoverResponse(id=product.id, identity=identity)
