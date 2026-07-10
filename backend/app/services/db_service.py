@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import AgentOutput, Confidence, Product, Report, Run
+from app.models import AgentOutput, Confidence, Product, Report, Run, RunStatus
 
 
 # --- Products ---
@@ -41,6 +41,12 @@ async def create_run(db: AsyncSession, *, product_id: int):
 
 async def get_run(db: AsyncSession, run_id: int):
     return await db.get(Run, run_id)
+
+
+async def update_run_status(db: AsyncSession, run_id: int, status: str):
+    run = await db.get(Run, run_id)
+    if run:
+        run.status = RunStatus(status)
 
 
 async def list_runs(db: AsyncSession, skip: int = 0, limit: int = 100):

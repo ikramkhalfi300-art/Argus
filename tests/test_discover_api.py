@@ -56,6 +56,32 @@ def override_agent(monkeypatch):
     yield
 
 
+@pytest.fixture
+def override_image_agent(monkeypatch):
+    async def mock_analyze_image(*args, **kwargs):
+        from app.schemas.product_identity import ProductIdentity
+        return ProductIdentity(
+            name="Image Test Product",
+            category="Test",
+            subcategory="Image",
+            normalized_keywords=["image", "test"],
+        )
+    monkeypatch.setattr("app.api.discover.analyze_product_image", mock_analyze_image)
+    yield
+
+
+@pytest.fixture
+def override_niche_agent(monkeypatch):
+    async def mock_niche(*args, **kwargs):
+        from app.schemas.product_identity import ProductIdentity
+        return [
+            ProductIdentity(name="Niche A", category="CatA", subcategory="SubA"),
+            ProductIdentity(name="Niche B", category="CatB", subcategory="SubB"),
+        ]
+    monkeypatch.setattr("app.api.discover.analyze_niche_shortlist", mock_niche)
+    yield
+
+
 @pytest.mark.asyncio
 async def test_discover_text_input(override_get_db, override_agent):
     async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
@@ -83,10 +109,37 @@ async def test_discover_url_input(override_get_db, override_agent):
 
 
 @pytest.mark.asyncio
-async def test_discover_invalid_input_type(override_get_db, override_agent):
+async def test_discover_image_input(override_get_db, override_image_agent):
     async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         resp = await client.post("/api/discover", json={
             "input_type": "image",
+            "value": "https://example.com/img/headphone.jpg",
+        })
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["id"] > 0
+    assert data["identity"]["name"] == "Image Test Product"
+
+
+@pytest.mark.asyncio
+async def test_discover_niche_query(override_get_db, override_niche_agent):
+    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        resp = await client.post("/api/discover", json={
+            "input_type": "niche_query",
+            "value": "eco-friendly home products",
+        })
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["candidates"] is not None
+    assert len(data["candidates"]) == 2
+    assert data["identity"] is None
+
+
+@pytest.mark.asyncio
+async def test_discover_invalid_input_type(override_get_db, override_agent):
+    async with httpx.AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        resp = await client.post("/api/discover", json={
+            "input_type": "video",
             "value": "something",
         })
     assert resp.status_code == 422

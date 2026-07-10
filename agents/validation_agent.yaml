@@ -1,0 +1,20 @@
+name: validation_agent
+model: claude-haiku-4-5-20251001
+provider: anthropic
+description: >
+  Given a ProductIdentity, performs gray-area compliance judgment for Meta
+  and TikTok ad policies.  Uses LLM reasoning only for ambiguous cases that
+  the deterministic compliance_blocklist.md cannot resolve.
+
+tools: []
+
+input:
+  type: object
+  properties:
+    product_identity:
+      type: object
+      description: A full ProductIdentity object (name, category, subcategory, keywords, etc.)
+
+output:
+  type: object
+  schema: ValidationJudgment

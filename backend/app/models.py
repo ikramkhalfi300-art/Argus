@@ -10,8 +10,12 @@ from app.database import Base
 class RunStatus(str, enum.Enum):
     PENDING = "pending"
     RUNNING = "running"
+    DISCOVERY_COMPLETE = "discovery_complete"
+    VALIDATION_COMPLETE = "validation_complete"
     COMPLETE = "complete"
     FAILED = "failed"
+    FAILED_AT_DISCOVERY = "failed_at_discovery"
+    FAILED_AT_VALIDATION = "failed_at_validation"
 
 
 class Confidence(str, enum.Enum):
