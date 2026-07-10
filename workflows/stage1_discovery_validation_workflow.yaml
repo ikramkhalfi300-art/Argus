@@ -1,0 +1,34 @@
+name: stage1_discovery_validation
+description: >
+  Pipeline Stage 1 — runs Discovery Agent on the raw input (text, URL, image,
+  or niche query), then runs the Validation Gate (deterministic compliance check
+  + LLM gray-area judgment + supplier check) on the resulting ProductIdentity.
+  For niche-shortlist queries, each candidate is validated independently.
+
+stages:
+  - name: discovery
+    agent: discovery_agent
+    description: >
+      Normalise raw input into a ProductIdentity object (or list for niche
+      queries).  Handles text names, product URLs (with page scraping), images
+      (via vision model), and open-ended niche queries.
+
+  - name: validation
+    agent: validation_agent
+    description: >
+      Gate the product against Meta / TikTok compliance policies.  Runs the
+      deterministic blocklist matcher first (Sprint 1.2.1), then the LLM
+      gray-area judgment (Sprint 1.2.2), and finally the supplier
+      availability check.
+
+gate:
+  flag: proceed_to_analysis
+  description: >
+    Any future caller (Phase 6 orchestrator, frontend, etc.) MUST check this
+    boolean before proceeding to Phase 2 analysis.  When false, the product
+    cannot be analysed further — it either failed discovery (unidentifiable
+    input) or failed validation (compliance / policy block).
+  enforcement: >
+    This sprint provides the flag in the response contract.  Enforcing it is
+    the caller's responsibility (Phase 6 orchestrator or API consumer).  The
+    flag is never true when a compliance block or discovery failure occurred.
